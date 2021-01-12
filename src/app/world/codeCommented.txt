@@ -1,0 +1,257 @@
+/*
+    //PIE CHART
+    await this.worldService.getSummary().then((data) =>{
+        this.dict = data['Global'];
+        this.world = new Country(
+        "World",this.dict['NewConfirmed'],this.dict['TotalConfirmed'],this.dict['NewRecovered'], this.dict['TotalRecovered'],
+        this.dict['NewDeaths'],this.dict['TotalDeaths']);
+      //TABLE COUNTRIES
+        this.dict = data['Countries'];
+        for (let i in this.dict) {
+          let subdict = this.dict[i];
+          let country = new Country(
+            subdict["Country"],subdict['NewConfirmed'],subdict['TotalConfirmed'],subdict['NewRecovered'], subdict['TotalRecovered'],
+            subdict['NewDeaths'],subdict['TotalDeaths']);
+          this.countries.push(country);
+        }
+        
+    this.pieChartData = [this.world.getTotalDeaths(), this.world.getTotalRecoveries(), this.world.getActiveCases()];
+
+    });
+  
+  
+  // BAR CHART
+  var totConfirmedWeek = [];
+  var totRecoveredWeek = [];
+  var totDeathsWeek = [];
+  var datesWeek = [];
+  await this.worldService.getLastWeekStatistics("world").then((data: any)=>{
+      for (let i in data){
+        totConfirmedWeek.push(data[i]['NewConfirmed']);
+        totRecoveredWeek.push(data[i]['NewRecovered']);
+        totDeathsWeek.push(data[i]['NewDeaths']);
+        let today = new Date();
+        datesWeek.push(this.datepipe.transform(new Date().setDate(today.getDate()-6+parseInt(i)),'dd MMM'));
+      }
+      this.barChartLabels = datesWeek;
+      this.barChartData = [
+          { data: totDeathsWeek, label: 'Total Deaths'},
+          { data: totRecoveredWeek, label: 'Total Recovered'},
+          { data: totConfirmedWeek, label: 'Total Cases'}
+        ];
+    });
+  
+  //LINE CHART
+  var totConfirmed = [];
+  var totRecovered = [];
+  var totDeaths = [];
+  var dates = [];
+
+  await this.worldService.getDayOneStatistics("world").then((data: any)=>{
+      for (let i in data){
+        if (parseInt(i)>1){
+            totConfirmed.push(data[i]['NewConfirmed']+totConfirmed[parseInt(i)-1]);
+            totRecovered.push(data[i]['NewRecovered']+totRecovered[parseInt(i)-1]);
+            totDeaths.push(data[i]['NewDeaths']+totDeaths[parseInt(i)-1]);
+            dates.push(this.datepipe.transform(new Date(),'dd MMM'));
+        }
+        else{
+            totConfirmed.push(data[i]['NewConfirmed']);
+            totRecovered.push(data[i]['NewRecovered']);
+            totDeaths.push(data[i]['NewDeaths']);
+            dates.push(this.datepipe.transform(new Date(),'dd MMM'));
+        }
+      }
+
+      for (let i=0; i<dates.length; i++){
+        let date = new Date();
+        date.setDate(date.getDate()-i)
+        dates[dates.length-i-1] = this.datepipe.transform(date, 'dd MMM');
+      }
+
+      this.lineChartData = [
+        { data: totDeaths, label: 'Total Deaths'},
+        { data: totRecovered, label: 'Total Recovered'},
+        { data: totConfirmed, label: 'Total Cases'}
+      ];
+      this.lineChartLabels = dates;
+
+  });
+  */
+
+
+
+
+
+
+
+
+
+  /*
+    await this.worldService.isCached(this.countryName).then((doc)=>{
+      let today = this.datepipe.transform(new Date(),'yyyy-MM-dd');
+      this.cache = false;
+      if ((doc.exists) && (doc.data()['lastupdate'] == today)){
+        this.cache = true;
+      }
+    })
+    //PIE CHART
+    console.log(this.cache);
+    if(!this.cache){
+        console.log("Retrieve from API");
+    }
+    else{
+      console.log("Retrieve Data from Storage");
+    }
+
+    if (!this.cache){
+        await this.worldService.getSummary().then((data) =>{
+              for (let i in data["Countries"]){
+                let subdict = data['Countries'][i];
+                if (subdict['Country'] == this.countryName){
+                  this.country = new Country(
+                    this.countryName,subdict['NewConfirmed'],subdict['TotalConfirmed'],subdict['NewRecovered'], 
+                    subdict['TotalRecovered'],subdict['NewDeaths'],subdict['TotalDeaths']);
+                    break;
+                  }
+              }
+              this.summary = true; 
+              this.pieChartData = [this.country.getTotalDeaths(), this.country.getTotalRecoveries(), this.country.getActiveCases()];
+              this.pieChartReady = true;        
+              this.table = true;
+              
+
+        });
+
+        // BAR CHART
+        var totConfirmedWeek = [];
+        var totRecoveredWeek = [];
+        var totDeathsWeek = [];
+        var datesWeek = [];
+        await this.worldService.getLastWeekStatistics(this.countryName).then((data: any)=>{
+              for (let i in data){
+                if (parseInt(i)>1){
+                  totConfirmedWeek.push(data[i]['Confirmed']-data[parseInt(i)-1]['Confirmed']);
+                  totRecoveredWeek.push(data[i]['Recovered']-data[parseInt(i)-1]['Recovered']);
+                  totDeathsWeek.push(data[i]['Deaths']-data[parseInt(i)-1]['Deaths']);
+                  datesWeek.push(this.datepipe.transform(new Date(data[i]['Date']),'dd MMM'));
+                }
+                }
+        });
+
+        this.barChartLabels = datesWeek;
+        this.barChartData = [
+          { data: totDeathsWeek, label: 'Total Deaths'},
+          { data: totRecoveredWeek, label: 'Total Recovered'},
+          { data: totConfirmedWeek, label: 'Total Cases'}
+        ];
+
+      this.barChartReady = true;
+        
+        //LINE CHART
+        var totConfirmed = [];
+        var totRecovered = [];
+        var totDeaths = [];
+        var dates = [];
+        await this.worldService.getDayOneStatistics(this.countryName).then((data: any)=>{
+              for (let i in data){
+                  totConfirmed.push(data[i]['Confirmed']);
+                  totRecovered.push(data[i]['Recovered']);
+                  totDeaths.push(data[i]['Deaths']);
+                  dates.push(this.datepipe.transform(new Date(data[i]['Date']),'dd MMM'));
+              }
+        });
+
+        this.dayOne = true;
+        this.lineChartData = [
+          { data: totDeaths, label: 'Total Deaths'},
+          { data: totRecovered, label: 'Total Recovered'},
+          { data: totConfirmed, label: 'Total Cases'}
+        ];
+        this.lineChartLabels = dates;
+        this.lineChartReady = true;
+
+
+            
+            
+        this.worldService.updateStorage(this.countryName);
+
+    }
+    else{
+      //PIE CHART
+        this.worldService.getSummaryFromStorage().subscribe((data: any)=>{
+          for (let i in data){
+            let subdict = data[i];
+            if (subdict['Country'] == this.countryName){
+                this.country = new Country(
+                this.countryName,subdict['NewConfirmed'],subdict['TotalConfirmed'],subdict['NewRecovered'], 
+                subdict['TotalRecovered'],subdict['NewDeaths'],subdict['TotalDeaths']);
+                this.summary = true; 
+                this.pieChartData = [this.country.getTotalDeaths(), this.country.getTotalRecoveries(), this.country.getActiveCases()];
+                this.pieChartReady = true;        
+                this.table = true;
+                break;
+              }
+            }
+            
+        });
+      
+        
+
+        // BAR CHART
+        
+        var totConfirmedWeek = [];
+        var totRecoveredWeek = [];
+        var totDeathsWeek = [];
+        var datesWeek = [];
+        this.worldService.getLastWeekStatisticsFromStorage(this.countryName).subscribe((lastweek: any)=>{
+              let data = lastweek['data'];
+              for (let i in data){
+                if (parseInt(i)>1){
+                  totConfirmedWeek.push(data[i]['Confirmed']-data[parseInt(i)-1]['Confirmed']);
+                  totRecoveredWeek.push(data[i]['Recovered']-data[parseInt(i)-1]['Recovered']);
+                  totDeathsWeek.push(data[i]['Deaths']-data[parseInt(i)-1]['Deaths']);
+                  datesWeek.push(this.datepipe.transform(new Date(data[i]['Date']),'dd MMM'));
+                }
+              }
+              this.barChartLabels = datesWeek;
+              this.barChartData = [
+                { data: totDeathsWeek, label: 'Total Deaths'},
+                { data: totRecoveredWeek, label: 'Total Recovered'},
+                { data: totConfirmedWeek, label: 'Total Cases'}
+              ];
+
+              this.barChartReady = true;
+        });
+        
+
+        
+        
+        //LINE CHART
+        
+        var totConfirmed = [];
+        var totRecovered = [];
+        var totDeaths = [];
+        var dates = [];
+        this.worldService.getDayOneStatisticsFromStorage(this.countryName).subscribe((dayone: any)=>{
+              let data = dayone['data']
+              for (let i in data){
+                  totConfirmed.push(data[i]['Confirmed']);
+                  totRecovered.push(data[i]['Recovered']);
+                  totDeaths.push(data[i]['Deaths']);
+                  dates.push(this.datepipe.transform(new Date(data[i]['Date']),'dd MMM'));
+              }
+              this.dayOne = true;
+              this.lineChartData = [
+                { data: totDeaths, label: 'Total Deaths'},
+                { data: totRecovered, label: 'Total Recovered'},
+                { data: totConfirmed, label: 'Total Cases'}
+              ];
+              this.lineChartLabels = dates;
+              this.lineChartReady = true;
+        });
+        
+        
+        
+     }
+     */

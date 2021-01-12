@@ -1,0 +1,152 @@
+<header class="text-center">
+  <nav class="topnav">
+  <div class="row">
+    <div class="col sm-1 btndiv">
+      <button class="btn btn-info" (click)="covidService.signInWithGoogle()" *ngIf="(!covidService.userSignedIn()) || (covidService.user==null)">
+        Sign In with Google
+      </button>
+      <button class="btn btn-danger" (click)="covidService.logout()" *ngIf="(covidService.userSignedIn()) && (covidService.user!=null)">
+        Sign Out
+      </button>
+    </div>
+    <div class="col sm-9"></div>
+    <div class="col sm-1">
+      <h3 *ngIf="(covidService.userSignedIn()) && (covidService.user!=null) && (covidService.user.superuser)">
+        <a href="#targetModal" data-toggle="modal">Add News</a>
+        <fa-icon [icon]="addNewsIcon" style="margin: 5pt;"></fa-icon>
+      </h3>
+      <h5 *ngIf="(covidService.userSignedIn()) && (covidService.user!=null) && (!covidService.user.superuser)">
+        Add News Functionality Not Available for this profile
+      </h5>
+    </div>
+    <div class="col sm-1 namediv">
+      <h3 *ngIf="(covidService.userSignedIn()) && (covidService.user!=null)">
+        {{covidService.user.displayName}}<fa-icon [icon]="userIcon" style="margin: 5pt;"></fa-icon>
+      </h3>
+    </div>
+  </div>
+</nav>
+ <h3>
+    <img style="width: 3%"
+    src="https://firebasestorage.googleapis.com/v0/b/covid19-78125.appspot.com/o/covidlogo.png?alt=media&token=bec92aaf-687a-4a42-99e2-e6f3a89eef66"
+    alt="COVID Logo"/>
+    COVID 19
+ </h3>
+ <h5>Live Updates and Statistics</h5>
+</header>
+<div class="my-3 mx-3 text-center title fadeIn">
+    <h3><a href="javascript:void(0)" (click)="covidService.redirectToWorld()">Worldwide</a> > {{ countryName}}</h3>
+</div>
+
+<div class ="row no-gutters">
+  <div class="col-sm-9 no-gutters leftside">
+    <div class="my-3 fadeIn">
+      <div class="my-3 title">Corona Virus Summary {{ countryName}}</div>
+  </div>
+    <div class="my-3 mx-3 text-center fadeIn">
+      <table class="table table-bordered table-striped"  *ngIf="pieChartData.length > 0">
+        <tbody>
+          <tr *ngFor="let key of data['summary'].getTupleList()">
+            <td [ngClass]="{'cases': key[0]==='Total Cases' || key[0]==='New Cases' || key[0]==='Active Cases',
+                          'recoveries': key[0]==='Total Recovered' || key[0]==='New Recovered' || key[0]==='Recovery Rate',
+                          'deaths': key[0]==='Total Deaths' || key[0]==='New Deaths' || key[0]==='Mortality Rate'}">{{key[0]}}</td>
+            <td [ngClass]="{'cases': key[0]==='Total Cases' || key[0]==='New Cases' || key[0]==='Active Cases',
+              'recoveries': key[0]==='Total Recovered' || key[0]==='New Recovered' || key[0]==='Recovery Rate',
+              'deaths': key[0]==='Total Deaths' || key[0]==='New Deaths' || key[0]==='Mortality Rate'}">{{ key[1]}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="pieChartData.length == 0" style="height: 421px; width: 800px;">
+        <h2 style="margin: 100pt;">Loading<fa-icon [icon]="tableIcon" style="margin: 10pt;" [spin]="true"></fa-icon> </h2>
+      </div>
+   </div>
+   <!-- PIE CHART  -->
+   <div class="my-3 fadeIn">
+    <div class="my-3 title">Corona Virus Cases Distribution {{countryName}}</div>
+   </div>
+   <div class="my-3 fadeIn" *ngIf="pieChartData.length > 0">
+      <canvas baseChart 
+          [data]="pieChartData" 
+          [labels]="pieChartLabels" 
+          [chartType]="pieChartType"
+          [options]="pieChartOptions"
+          [plugins]="pieChartPlugins"
+          [legend]="pieChartLegend">
+      </canvas>
+    </div> 
+    <div *ngIf="pieChartData.length == 0" style="height: 416px; width: 832px;" class="text-center">
+      <h2 style="margin: 100pt;">Loading<fa-icon [icon]="pieChartIcon" style="margin: 10pt;" [spin]="true"></fa-icon> </h2>
+    </div>
+
+    <!-- BAR CHART-->
+    <div class="my-3 fadeIn">
+      <div class="my-3 title">Daily Corona Virus Cases {{countryName}}</div>
+    </div>
+    <div  class="my-3 fadeIn" *ngIf="barChartData.length > 0">
+      <canvas baseChart 
+        [datasets]="barChartData"
+        [labels]="barChartLabels"
+        [options]="barChartOptions"
+        [plugins]="barChartPlugins"
+        [legend]="barChartLegend"
+        [chartType]="barChartType">
+      </canvas>
+    </div>
+    <div *ngIf="barChartData.length == 0" style="height: 416px; width: 832px;" class="text-center">
+      <h2 style="margin: 100pt;">Loading<fa-icon [icon]="barChartIcon" style="margin: 10pt;" [spin]="true"></fa-icon> </h2>
+    </div>
+  
+    <!-- LINE CHART  -->
+    <div class="my-3 fadeIn">
+      <div class="my-3 title">Total Corona Virus Cases {{this.countryName}}</div>
+    </div>
+  
+    <div class="my-3 fadeIn" *ngIf="lineChartData.length > 0">
+     <canvas baseChart width="400" height="400"
+      [datasets]="lineChartData"
+      [labels]="lineChartLabels"
+      [options]="lineChartOptions"
+      [colors]="lineChartColors"
+      [legend]="lineChartLegend"
+      [chartType]="lineChartType"
+      [plugins]="lineChartPlugins">
+    </canvas>
+    </div>
+    <div *ngIf="lineChartData.length == 0" style="height: 832px; width: 832px;" class="text-center">
+      <h2 style="margin: 100pt;">Loading<fa-icon [icon]="lineChartIcon" style="margin: 10pt;" [spin]="true"></fa-icon> </h2>
+    </div>
+  </div>
+  <div class="col-sm-3 no-gutters rightside">
+    <div class="newsDiv">
+      <h4>News<fa-icon [icon]="newsIcon" style="margin: 5pt;"></fa-icon></h4>
+      <p>Sort by</p>
+      <span class="row sortSpan">
+        <select class="form-control col-sm-7 sortSpan" [(ngModel)]="sortNewsParam" name="sortNewsParam" required placeholder="- Select -">
+          <option>Most Recent</option>
+          <option>Country</option>
+        </select>
+        <button class="btn btn-primary col-sm-4 sortSpan" (click)="sortNews()" [disabled]="sortNewsParam == undefined">Sort</button>
+      </span>
+      
+    </div>
+    <div *ngIf="news.length >0">
+      <div *ngFor="let new of news">
+        <div class="newsDiv">
+            <article>
+              <h5>{{new.countryName}}</h5>
+              <cite>{{new.description}}</cite>
+              <p>{{covidService.transformDate(new.date)}}</p>
+              <p class="author">{{new.author}}, {{new.email}}</p>
+            </article>
+        </div>
+        </div>
+    </div>
+  </div>
+  
+</div>
+<div id="targetModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <app-news></app-news>
+</div>
+<footer>
+  <div class="my-3 title footer">Data Source: <a href="https://covid19api.com">COVID-19 API / Johns Hopkins CSSE</a></div>
+</footer>
