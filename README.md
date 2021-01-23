@@ -5,5 +5,5 @@ It is publicly available online at https://covid19-78125.web.app
 
 Written in Angular and hosted by Google Firebase. The primary source of data is the <a href="https://covid19api.com/">Covid19API</a>.
 
-Developed by Michele Panariello for the Clouds course of EURECOM, fall semester 2020.
+Developed by Alessandro Baldo for the Clouds course of EURECOM, fall semester 2020.
 
